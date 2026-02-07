@@ -11,18 +11,39 @@ image → Cline (vision) → response → local KB → search/retrieve
 - Validate a local, searchable long-term memory (SQLite + FTS5).
 
 ## Setup
-This is intentionally small and dependency-light.
+This repo has two entry points:
+- `cline_poc/` (Python CLI)
+- `macos_wrapper/` (macOS app)
 
-### Python
+### Cline CLI (required for both)
+This project shells out to the Cline CLI. Make sure the CLI is installed and authenticated.
+
+1. Install Cline CLI (follow the official Cline docs).
+2. Authenticate once in a terminal:
+   - Example sanity check: `cline --json -p "hello"`
+3. Find the CLI path:
+   - `which cline`
+
+Notes:
+- If your environment blocks `os.uptime` for Node (EPERM), we auto-patch via `NODE_OPTIONS`.
+  Disable with `CLINE_PATCH_UPTIME=0`.
+- If you want Cline config/logs in a specific directory, use `--config <dir>` when running the CLI,
+  and set that same config path in the macOS app settings.
+
+### macOS app (Argus wrapper)
+1. Open `macos_wrapper/Argus.xcodeproj` in Xcode.
+2. Select the `Argus` scheme and run.
+3. In **Settings**:
+   - Set **Cline Executable** to the output of `which cline` (especially if using `nvm`).
+   - Optional: set **Cline Config Dir** to your Cline config/logs directory.
+   - Use **Test Cline** and **Run Hello Prompt** to verify.
+4. Drag & drop images, type a prompt, click **Run**.
+   - The app stages images into a temporary workspace and passes `@image-*.png` to Cline.
+   - Click **Logs** to inspect raw CLI output.
+
+### Python CLI (optional)
 - Python 3.10+ recommended.
 - No Python dependencies required for the simplified wrapper (a venv is optional).
-
-### Cline CLI (image extraction)
-This POC uses the Cline CLI as the vision model. Ensure `cline` is installed and available on your PATH.
-Images are passed directly to Cline by attaching them in the prompt (e.g., `@/path/to/image.png`).
-
-If your environment blocks `os.uptime` for Node (EPERM), the POC auto-patches it via `NODE_OPTIONS`.
-You can disable that patch with `CLINE_PATCH_UPTIME=0`.
 
 If you need Cline to store config/logs in the repo (e.g., sandboxed env), pass `--cline-config data/cline-config`
 and run `cline auth --config data/cline-config` once to authenticate.
